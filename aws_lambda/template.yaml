@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Daily GPS device health job. Runs every night for the previous 24 hours, and can also be
+  called on demand through API Gateway with {"vehicle_id": [...]}.
+
+Parameters:
+  GpsApiBase:
+    Type: String
+    Description: Base URL of the telematics API (location + heartbeat endpoints)
+  HealthDbUrl:
+    Type: String
+    NoEcho: true
+    Default: ''
+    Description: Optional SQLAlchemy URL where device_health and wire_issues rows are written
+
+Resources:
+  DeviceHealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ..
+      Handler: aws_lambda.lambda_function.lambda_handler
+      Runtime: python3.11
+      Timeout: 900
+      MemorySize: 1024
+      Environment:
+        Variables:
+          PING_SOURCE: http
+          GPS_API_BASE: !Ref GpsApiBase
+          HEALTH_DB_URL: !Ref HealthDbUrl
+          MAX_WORKERS: '10'
+      Events:
+        OnDemand:
+          Type: Api
+          Properties:
+            Path: /vehicles
+            Method: post
+        # A nightly run needs the list of live vehicles. In production a small scheduler
+        # read that list and called invoke.py in batches of 100; wire your own source here.
+        Nightly:
+          Type: Schedule
+          Properties:
+            Schedule: cron(30 19 * * ? *)   # 01:00 IST
+            Input: '{"vehicle_id": []}'

@@ -1,0 +1,7 @@
+vehicle_id,model_name,installer,network,wiring_fault,has_heartbeat
+500000,MODEL_B,INSTALLER_07,NET_1,none,False
+500001,MODEL_E,INSTALLER_06,NET_1,none,True
+500002,MODEL_B,INSTALLER_05,NET_1,none,False
+500003,MODEL_D,INSTALLER_05,NET_1,none,False
+500004,MODEL_E,INSTALLER_01,NET_1,none,True
+500005,MODEL_B,INSTALLER_02,NET_2,intentional_wire_cut,False
